@@ -1,48 +1,30 @@
 var storagedata = [
-	{ id: 1, title: "Стол", vol: 12  },
-	{ id: 2, title: "Стул", vol: 300  },
-	{ id: 3, title: "Книга", vol: 5 },
-	{ id: 4, title: "Самолёт", vol: 2 },
-	{ id: 6, title: "Ракета", vol: 12},
-	{ id: 5, title: "Звездолёт", vol: 2 }
+	{ id: 1, title: "Стол", vol: 12 ,cost:100 },
+	{ id: 2, title: "Стул", vol: 300 ,cost:200 },
+	{ id: 3, title: "Книга", vol: 5 ,cost:1300},
+	{ id: 4, title: "Самолёт", vol: 2 ,cost:10},
+	{ id: 6, title: "Ракета", vol: 12,cost:1200},
+	{ id: 5, title: "Звездолёт", vol: 2,cost:1 }
 ];
 var basket = [
 
 	
 ];
-var basketsumm={id:summ,title:"Количество товара",vol:0}
+
+var basketsumm={id:'summ',title:"Стоимость товара",vol:0}
 
 document.addEventListener("DOMContentLoaded", () => {
-
-
-	// обработка нажатия на кнопку "сортировать"
-	
-	document.getElementById("sort_btn").addEventListener("click", () => {
-		let sortedData = sortByRating(storagedata);
-		refresh(sortedData,"storage");
-		 sortedData = sortByRating(basket);
-		refresh(sortedData,"basket");
-	});
-
-	// обработка нажатия "обновить"
-	document.getElementById("refresh_btn").addEventListener("click", () => {
-		refresh(storagedata,"storage");
-		refresh(basket,"basket");
-	});
-	
-
 	// первичное отображение данных
 	refresh(storagedata,"storage");
 	refresh(basket,"basket");
-	
-	
-	
 });
+
 function summ(data) {
-	summ=0;
+	summbs=0;
 	data.forEach(item=>{
-		summ+=data.vol;
+		summbs+=(item.vol*item.cost);
 	});
+	return summbs;
 }
 // функция обновления данных в контейнере
 function refresh(data, name) {
@@ -50,10 +32,9 @@ function refresh(data, name) {
 
 	data.forEach(item => {
 		document.getElementById(name).appendChild(createElement(item,name))	
-	});
-
-	document.getElementById('basket').appendChild(createElement(basketsumm,'basket'))	
-	
+	});	
+	clear('basketsumm')
+	document.getElementById('basketsumm').appendChild(createElement(basketsumm,'basketsumm'))
 }
 
 
@@ -129,25 +110,23 @@ function createElement(item,name) {
 	if (name=="basket") {
 	divItemContainer.id = 'bs_' + item.id;
 	}
-	else{divItemContainer.id = 'st_' + item.id;}
-
-	divItemContainer.onclick=function(){          //добавление обработчика события клик
-		ind=true;
-		let elemi;								//ячейка для номера элемента
-		if(name=="storage"){					//Добавление в корзину
-			stbs(item,storagedata,basket);
-			basketsumm.vol++;	
+	else if (name=='storage') {divItemContainer.id = 'st_' + item.id;}
+	else {divItemContainer.id = 'bssumm_' + item.id;}
+	if (name!="basketsumm") {
+		divItemContainer.onclick=function(){          //добавление обработчика события клик
+			ind=true;
+			let elemi;								//ячейка для номера элемента
+			if(name=="storage"){					//Добавление в корзину
+				stbs(item,storagedata,basket);
+			}
+			else{									//добавление на склад
+				stbs(item,basket,storagedata);
+			}
+			if (basket.length>0) {basketsumm.vol=summ(basket)}
+			refresh(storagedata,"storage");
+			refresh(basket,"basket");
+			return false;
 		}
-		else{									//добавление на склад
-			stbs(item,basket,storagedata);
-			basketsumm.vol--;
-		}
-		
-		//обновляем данные
-		refresh(storagedata,"storage");
-		refresh(basket,"basket");
-
-		return false;
 	}
 	return divItemContainer;
 }
