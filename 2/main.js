@@ -4,15 +4,11 @@ var storagedata = [
 	{ id: 3, title: "Книга", vol: 5 },
 	{ id: 4, title: "Самолёт", vol: 2 },
 	{ id: 6, title: "Ракета", vol: 12},
-	{ id: 5, title: "Звездолёт", vol: 51 }
+	{ id: 5, title: "Звездолёт", vol: 2 }
 ];
 var basket = [
-	{ id: 1, title: "Стол", vol: 12  },
-	{ id: 2, title: "Стул", vol: 3  },
-	{ id: 3, title: "Книга", vol: 5 },
+
 	
-	{ id: 6, title: "Ракета", vol: 12},
-	{ id: 5, title: "Звездолёт", vol: 51 }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -47,7 +43,7 @@ function refresh(data, name) {
 	clear(name)
 
 	data.forEach(item => {
-		document.getElementById(name).appendChild(createElement(item))
+		document.getElementById(name).appendChild(createElement(item,name))
 			
 	});
 	
@@ -67,15 +63,45 @@ function sortByRating(data) {
 
 	return sortedData
 }
+function stbs(item,data1,data2) {
+			//добавление к количеству товара и проверка есть ли такой товар в корзине
+			for (var i = 0; i < data2.length; i++) {
+					if (data2[i].id==item.id) {
+						data2[i].vol++;
+						ind=false;
+					}
+			}
+
+			for (var i = 0; i < data1.length; i++) {
+				if (data1[i].id== item.id) {
+						elemi=i;						//запоминаем номер элемента
+				}
+			}
+
+			//если товара нет в корзине создаём его
+			if (ind) {
+				data2[data2.length]=Object.assign({},data1[elemi])//копируем элемент
+				data2[data2.length-1].vol=1;
+			}
+
+
+			for (var i = 0; i < data1.length; i++) {
+
+				if (data1[i].id== item.id) {
+					data1[i].vol--;			//уменьшаем количство товара
+					if (data1[i].vol==0) {	//проверяем есть ли данный товар
+						 data1.splice(i,1);	//если его нет то удаляем его из списка
+					}
+				}
+			}
+}
 
 // функция очищения 
 function clear(name) {
 	document.getElementById(name).innerHTML = '';
 	
 }
-
-
-function createElement(item) {
+function createElement(item,name) {
 	// ячейка названия товара
 	var divTitle = document.createElement('div');
 	divTitle.className = "item-title";
@@ -92,30 +118,25 @@ function createElement(item) {
 	divItemContainer.className = "row item disable-selection";
 	divItemContainer.appendChild(divTitle);
 	divItemContainer.appendChild(divVol);
-	divItemContainer.id =  item.id;
-	divItemContainer.onclick=function(){
-		item.vol--;
+	if (name=="basket") {
+	divItemContainer.id = 'bs_' + item.id;
+	}
+	else{divItemContainer.id = 'st_' + item.id;}
+
+	divItemContainer.onclick=function(){          //добавление обработчика события клик
 		ind=true;
-		for (var i = 0; i < basket.length; i++) {
-				if (basket[i].id==item.id) {
-					basket[i].vol++;
-					ind=false;
-				}
+		let elemi;								//ячейка для номера элемента
+		if(name=="storage"){
+			stbs(item,storagedata,basket);	
 		}
-		if (ind) {
-			basket[basket.length]=item;
-			 basket[basket.length].vol=1;
-		}	
-		if (item.vol==0) {
-			for (var i = 0; i < storagedata.length; i++) {
-				if (storagedata[i].id==item.id) {
-					delete storagedata[i];
-				}
-			}	
+		else{
+			stbs(item,basket,storagedata);
 		}
 		
+		//обновляем данные
 		refresh(storagedata,"storage");
 		refresh(basket,"basket");
+
 		return false;
 	}
 	return divItemContainer;
