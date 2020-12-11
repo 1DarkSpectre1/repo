@@ -10,6 +10,7 @@ var basket = [
 
 	
 ];
+var basketsumm={id:summ,title:"Количество товара",vol:0}
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -37,15 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
 	
 	
 });
-
+function summ(data) {
+	summ=0;
+	data.forEach(item=>{
+		summ+=data.vol;
+	});
+}
 // функция обновления данных в контейнере
 function refresh(data, name) {
 	clear(name)
 
 	data.forEach(item => {
-		document.getElementById(name).appendChild(createElement(item,name))
-			
+		document.getElementById(name).appendChild(createElement(item,name))	
 	});
+
+	document.getElementById('basket').appendChild(createElement(basketsumm,'basket'))	
 	
 }
 
@@ -94,6 +101,7 @@ function stbs(item,data1,data2) {
 					}
 				}
 			}
+
 }
 
 // функция очищения 
@@ -126,11 +134,13 @@ function createElement(item,name) {
 	divItemContainer.onclick=function(){          //добавление обработчика события клик
 		ind=true;
 		let elemi;								//ячейка для номера элемента
-		if(name=="storage"){
-			stbs(item,storagedata,basket);	
+		if(name=="storage"){					//Добавление в корзину
+			stbs(item,storagedata,basket);
+			basketsumm.vol++;	
 		}
-		else{
+		else{									//добавление на склад
 			stbs(item,basket,storagedata);
+			basketsumm.vol--;
 		}
 		
 		//обновляем данные
